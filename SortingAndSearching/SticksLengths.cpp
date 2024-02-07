@@ -14,4 +14,11 @@ int main(){
     fore(i,0,n){
         cin >> palitos[i];
     }
+    sort(palitos,palitos + n);
+    long long media = palitos[n/2];
+    long long res = 0;
+    fore(i,0,n){
+        res += abs(media-palitos[i]);
+    }
+    cout << res;
 }
