@@ -18,6 +18,9 @@ bool compA(const pair<ll,pair<ll,ll>> a,const pair<ll,pair<ll,ll>> b){
         return false;
     }
 }
+bool compB(const pair<ll,pair<ll,ll>> a,const pair<ll,pair<ll,ll>> b){
+    return not (compA(a,b));
+}
 
 bool ordXSegundos(const pair<ll,pair<ll,ll>> a,const pair<ll,pair<ll,ll>> b){
     if(a.second.first <= b.second.first){
@@ -27,7 +30,8 @@ bool ordXSegundos(const pair<ll,pair<ll,ll>> a,const pair<ll,pair<ll,ll>> b){
     }
 }
 
-int tr[2*10+ 1]; // for more dimensions, make ft multi-dimensional
+ll tr[2*10*10*10*10*10+ 1]; //CuentaCuantosIncluye
+ll tr2[2*10*10*10*10*10 + 1];//CuentaCuantosLoIncluyen
 void add(int k, int x,int n) {
     while (k <= n) {
         tr[k] += x;
@@ -38,6 +42,20 @@ int sum(int k) {
     int s = 0;
     while (k >= 1) {
     s += tr[k];
+    k -= k&-k;
+    }
+    return s;
+}
+void add2(int k, int x,int n) {
+    while (k <= n) {
+        tr2[k] += x;
+        k += k&-k;
+    }
+}
+int sum2(int k) {
+    int s = 0;
+    while (k >= 1) {
+    s += tr2[k];
     k -= k&-k;
     }
     return s;
@@ -55,7 +73,7 @@ int main(){
     
     unordered_map<ll,int> Maximos;
     pair<ll,pair<ll,int>> rangos[n];
-    int a ,b;
+    ll a ,b;
     pair<int,int> res[n];
     fore(i,0,n){
         cin >> a >> b;
@@ -72,6 +90,7 @@ int main(){
         ll buffer = rangos[i].second.first;
         if(last != buffer){
             add(pos ,act,n);
+            add2(pos,act,n);
             pos++;
             Maximos[buffer] = pos; 
             act = 1;
@@ -83,8 +102,9 @@ int main(){
         }
         
     }
+    
     add(pos,act,n);
-     
+    add2(pos,act,n);
     sort(rangos,rangos + n,compA);
    
    //Primera parte O(nlog(n)) Cuenta de a cuantos contiene;
@@ -94,10 +114,21 @@ int main(){
         res[rangos[i].second.second].first = sum(pos)  -1 ;
         add(pos,-1,n);
    }
+    sort(rangos,rangos + n, compB);
+    int posFinal = Maximos.at(last); 
+    fore(i,0,n){
+        int pos = Maximos.at(rangos[i].second.first);
+
+        res[rangos[i].second.second].second =  sum2(posFinal) -(sum2(pos-1)) - 1;
+        add2(pos,-1,n); 
+    }
 
     fore(i,0,n){
         cout << res[i].first << " ";
     }
-
+    cout << "\n";
+    fore(i,0,n){
+        cout << res[i].second << " ";
+    }
 
 }
