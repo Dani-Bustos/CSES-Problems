@@ -4,6 +4,7 @@ using namespace std;
 typedef long long ll; const int INF = 1e9;
 
 
+
 struct flow_digraph{
     
     vector<vector<int>> flujo;
@@ -11,17 +12,15 @@ struct flow_digraph{
     vector<list<int>> adyacencias;
     vector<list<int>> adyacenciasOG;
     vector<int> caminoAumento;
-    vector<int> aristas;
-   
-    
-    
+  
     //Nuestra fuente es el primero, el sumidero el ultimo
-    flow_digraph(int cantVertices, int cantAristas = 0){
-        aristas.resize(cantAristas);
+    flow_digraph(int cantVertices){
+      
         adyacencias.resize(cantVertices);
         adyacenciasOG.resize(cantVertices);
         flujo.resize(cantVertices,vector<int>(cantVertices,0));
         capacidad.resize(cantVertices,vector<int>(cantVertices,0));
+        
     }
 
     void addEdge(int v , int w, int cap){
@@ -40,7 +39,6 @@ struct flow_digraph{
             int cuelloBotella = findBottleNeck();
             fore(i,0,caminoAumento.size()-1){
                 //Subo el flujo de la arista si esta en el grafo
-                
                 flujo[caminoAumento[i]][caminoAumento[i+1]] += cuelloBotella;
                 
                 //Bajo el flujo de la arista si no esta
@@ -65,7 +63,7 @@ struct flow_digraph{
         }
         caminoAumento.push_back(0);
         reverse(caminoAumento.begin(),caminoAumento.end());
-        ;
+        
         return caminoAumento;
     }
     
@@ -82,7 +80,6 @@ struct flow_digraph{
             int v = q.front(); q.pop();
             for(int vecino  : adyacencias[v]){
             
-                
                 //Si es una arista valida del residual el valor es distinto de 0
                 if(not visitados[vecino] && flujo[v][vecino] < capacidad[v][vecino]){
                 
@@ -112,35 +109,37 @@ struct flow_digraph{
     }
 
     vector<vector<int>> Paths(){ 
-        //Funcion para reocnstruir los caminos disjuntos en el grafo original
-        queue<int> q; 
-        vector<bool> visitados(adyacencias.size(),false);
-        vector<int> padre(adyacencias.size(),-1);
-        visitados[0] = true; q.push(0);
-        padre[0] = 0;
-        int sumidero = adyacencias.size()-1;
-        vector<vector<int>> caminos;
-        while(!q.empty()){
-            int v = q.front();q.pop();
-            for(int w : adyacenciasOG[v]){
-                if(w == sumidero){
-                    vector<int> temp = buildPath(padre,v);
-                    temp.push_back(sumidero);
-                    caminos.push_back(temp);
+        vector<vector<int>> res;
+        
+        for(int v :adyacenciasOG[0]){
+            vector<int> p;
+            if(flujo[0][v] == 1){
+                p = singlePath(0,adyacenciasOG.size()-1,p);
+                if(p.size() != 0){
+                    res.push_back(p);
                 }
-                if(!visitados[w] && flujo[v][w] == 1){
-                    visitados[w] = true;
-                    padre[w] = v;
-                    q.push(w);
-                }
-                
-            
-                
             }
         }
-        return caminos;
+        return res;
+    }
+    
+    vector<int> singlePath(int s,int t,vector<int> &p){
+        p.push_back(s);    
+        if (s == t){
+            return p;
+        }else{
+            for(int u : adyacenciasOG[s]){
+                if(flujo[s][u] == 1){
+                    flujo[s][u]--;
+                    
+                    return singlePath(u,t,p);     
+                }
+            }
+        }
+        
     }
 };
+
 
 
 int main(){
@@ -152,16 +151,16 @@ int main(){
         cin >> a >> b;
         G.addEdge(a-1,b-1,1);
     }
-
-    int res = G.maxFlow();
-    cout << res << "\n";
-    if(res != 0){
-        vector<vector<int>> caminos = G.Paths();
+    G.maxFlow();
+    vector<vector<int>> caminos = G.Paths();
+    cout << caminos.size() << "\n";
+    if(caminos.size() != 0){
+        
         
         fore(i,0,caminos.size()){
             cout << caminos[i].size() << "\n";
             fore(j,0,caminos[i].size()){
-                cout << caminos[i][j] + 1    << " ";
+                cout << caminos[i][j] + 1  << " ";
             
             }
             cout << "\n";
