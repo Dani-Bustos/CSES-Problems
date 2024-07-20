@@ -4,15 +4,15 @@ using namespace std;
 vector<long long> S;
 int n,a,b;
 int solve(){
-    int i,j; i = 0; j  = (a-2;
+    int i,j; i = 0;j = b - a;
     long long best =0;
-   
-    while(i != n){
-        best = max(best,i < 0 ? S[j]- S[i-1]: S[j]);
+    
+    while(i <= n){
+        if( j - i <= b && a <= j - i){
+            best = max(best,S[j]-S[i]);       
+        }
         
-        if(j - i +1< b && j < n)j++;
-        else if(j-i + 1 > a)i++;
-        else break;
+        
     }   
     return best;
 }
@@ -21,11 +21,12 @@ int main(){
     ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
 
     cin >> n >> a >> b;
-    S.resize(n);
-
-    fore(i,0,n){
-        cin >> S[i];
-        if(i !=0) S[i] +=S[i-1];
+    S.resize(n+1);
+    S[0] = 0;
+    fore(i,1,n+1){
+        int temp;
+        cin >> temp;
+        if(i !=0) S[i] = temp + S[i-1];
     }
     cout << solve();
 
